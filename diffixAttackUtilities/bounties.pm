@@ -1,4 +1,5 @@
 use strict;
+use Math::Round qw(round);
 package diffixAttackUtilities::bounties;
 use base 'Exporter';
 our @EXPORT_OK = qw(
@@ -65,12 +66,12 @@ my($score) = @_;
   my $confImpv = 0;
   if ($guesses) {
     $conf = $score->{right} / $guesses;
-    $score->{conf} = round($conf * 100);
+    $score->{conf} = Math::Round::round($conf * 100);
     if ($score->{statProb} != 1) {
       $confImpv = ($conf - $score->{statProb}) / (1 - $score->{statProb});
     }
   }
-  $score->{kappa} = round($confImpv * 100);
+  $score->{kappa} = Math::Round::round($confImpv * 100);
   $score->{alpha} = $guesses / ($score->{known} + 1);
   $score->{bounty} = getBounty($score->{alpha}, $score->{kappa});
   
@@ -79,7 +80,7 @@ my($score) = @_;
 
 sub printScore {
 my($tag, $s) = @_;
-  my $statProb = round($s->{statProb} * 100);
+  my $statProb = Math::Round::round($s->{statProb} * 100);
   print "$tag:	right $s->{right}, wrong $s->{wrong} of $s->{known} cells, stat prob $statProb\n";
   my $alpha = sprintf "%.3f", $s->{alpha};
   if ($s->{alpha} < 0.001) {
