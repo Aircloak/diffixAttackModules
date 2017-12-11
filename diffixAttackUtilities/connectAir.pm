@@ -11,15 +11,17 @@ our @EXPORT_OK = qw(
                     getAirDataSourceIdFromName
                     fixSqlForWindows
                     getSyncAirQuery
-                    pollForQueryExp
-                    pollForQuery
                     queryDatabaseAir
+                    queryDatabaseAirQ
                     getColumnsFromAir
+                    getQueryResult
                    );
 use JSON;
 use File::Slurp;
 use Test::JSON;
 use Time::HiRes qw(usleep gettimeofday tv_interval);
+use IO::Async::Timer::Periodic;
+use IO::Async::Loop;
 use lib '../../diffixAttackModules';
 use diffixAttackConfig::genConfig qw( getAirToken getAirUrl );
 use diffixAttackUtilities::processAnswers qw( getColumnsFromRes );
@@ -70,7 +72,7 @@ sub getAirDataSources {
       logAirEvent("Result too large to print");
     }
     last if (is_valid_json $jsonStr);
-    sleep 5;
+    #sleep 5;
   }
   my $ref = decode_json $jsonStr;
   return $ref;
@@ -89,7 +91,7 @@ my($qid) = @_;
       logAirEvent($jsonStr);
     }
     last if (is_valid_json $jsonStr);
-    sleep 5;
+    #sleep 5;
   }
   my $ref = decode_json $jsonStr;
   die "ERROR getQueryResult: query returned error $ref->{query}->{error}"
@@ -118,6 +120,14 @@ my($sql) = @_;
   return $sql;
 }
 
+sub getColumnsFromAir {
+my($run) = @_;
+  $run->{sql} = "SHOW columns FROM $run->{table}";
+  my ($airRes, $elapsed) = queryDatabaseAir($run);
+  my ($cols, $types) = getColumnsFromRes($airRes);
+  return ($cols, $types);
+}
+
 sub getSyncAirQuery {
 my($db_name, $sql) = @_;
   my $url = getAirUrl();
@@ -138,7 +148,7 @@ my($db_name, $sql) = @_;
       logAirEvent($jsonStr);
     }
     last if (is_valid_json $jsonStr);
-    sleep 5;
+    #sleep 5;
   }
   my $ref = decode_json $jsonStr;
 
@@ -148,23 +158,6 @@ my($db_name, $sql) = @_;
   else {
     return undef;
   }
-}
-
-sub pollForQueryExp {
-my($qid, $p) = @_;
-  for (1..26) {
-    my $airRes = getQueryResult($qid);
-    if ($airRes->{query}->{query_state} ne "completed") {
-      if ($p) { print "query state = $airRes->{query}->{query_state}\n"; }
-      my $sleepTime = 1000 + 2**$_;
-      if ($p) { print "sleep $sleepTime us\n"; }
-      usleep $sleepTime;
-    }
-    else { 
-      return $airRes;
-    }
-  }
-  return undef;
 }
 
 sub pollForQuery {
@@ -184,30 +177,40 @@ my($qid, $p) = @_;
   return undef;
 }
 
+# This is the blocking version
 sub queryDatabaseAir {
 my($run) = @_;
-  my $p = $run->{print};
-  my $startTV = [ gettimeofday ];
-  my $qid = getSyncAirQuery($run->{db}, $run->{sql});
-  die "queryDatabaseAir: no Query ID returned" if (!defined $qid);
-  my $airRes = pollForQuery($qid, $p);
-  die "queryDatabaseAir: Query timed out" unless defined $airRes;
-  #if ($p) { print Dumper $airRes; }
-  my $newTV = [ gettimeofday ];
-  my $elapsedAir = tv_interval($startTV, $newTV);
+  my ($airRes, $elapsedAir) = queryDatabaseAirReal($run, 1);
 
   return($airRes, $elapsedAir);
 }
 
-sub getColumnsFromAir {
+# This is the non-blocking version
+sub queryDatabaseAirQ{
 my($run) = @_;
-  $run->{sql} = "SHOW columns FROM $run->{table}";
-  my ($airRes, $elapsed) = queryDatabaseAir($run);
-  my ($cols, $types) = getColumnsFromRes($airRes);
-  return ($cols, $types);
+  my $qid = queryDatabaseAirReal($run, 0);
+  return($qid);
 }
 
-#my $getCmd = "curl -k -v -X GET -H \"$token\" $url";
+sub queryDatabaseAirReal {
+my($run, $block) = @_;
+  my $p = $run->{print};
+  my $startTV = [ gettimeofday ];
+  my $qid = getSyncAirQuery($run->{db}, $run->{sql});
+  die "queryDatabaseAir: no Query ID returned" if (!defined $qid);
+  my $airRes = ();
+  if ($block) {
+    $airRes = pollForQuery($qid, $p);
+    die "queryDatabaseAir: Query timed out" unless defined $airRes;
+    my $newTV = [ gettimeofday ];
+    my $elapsedAir = tv_interval($startTV, $newTV);
+    return($airRes, $elapsedAir);
+  }
+  else {
+    return $qid;
+  }
+}
+
 
 # use "2>" to get a dump of the stdout
 
