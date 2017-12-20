@@ -79,14 +79,14 @@ my($score) = @_;
 }
 
 sub printScore {
-my($tag, $s) = @_;
+my($fh, $tag, $s) = @_;
   my $statProb = Math::Round::round($s->{statProb} * 100);
-  print "$tag:	right $s->{right}, wrong $s->{wrong} of $s->{known} cells, stat prob $statProb\n";
+  print $fh "$tag:	right $s->{right}, wrong $s->{wrong} of $s->{known} cells, stat prob $statProb\n";
   my $alpha = sprintf "%.3f", $s->{alpha};
   if ($s->{alpha} < 0.001) {
     $alpha = sprintf "%.2e", $s->{alpha};
   }
-  print "	conf $s->{conf}, alpha $alpha, kappa $s->{kappa}\n";
+  print $fh "	conf $s->{conf}, alpha $alpha, kappa $s->{kappa}\n";
 }
 
 1;
