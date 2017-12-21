@@ -86,7 +86,7 @@ my($fh, $tag, $s) = @_;
   if ($s->{alpha} < 0.001) {
     $alpha = sprintf "%.2e", $s->{alpha};
   }
-  print $fh "	conf $s->{conf}, alpha $alpha, kappa $s->{kappa}\n";
+  print $fh "			conf $s->{conf}, alpha $alpha, kappa $s->{kappa}\n";
 }
 
 1;

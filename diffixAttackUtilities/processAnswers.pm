@@ -8,8 +8,10 @@ our @EXPORT_OK = qw(
                      getColumnsFromRes
                      computeExpectedProb
                      getHashesFromAnswers1
+                     getQuerySignature
                    );
 use Scalar::Util qw(looks_like_number);
+use Digest::MD4 qw(md4_base64);
 
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 0;
@@ -137,6 +139,28 @@ my($res) = @_;
   return(\%hash);
 }
 
+sub getQuerySignature {
+my($q) = @_;
+  my $string = '';
+  foreach (@{ $q->{baseVals} }) {
+    $string .= $_;
+  }
+  foreach (@{ $q->{baseTypes} }) {
+    $string .= $_;
+  }
+  foreach (@{ $q->{baseCols} }) {
+    $string .= $_;
+  }
+  $string .= $q->{db};
+  $string .= $q->{table};
+  $string .= $q->{isolateVal};
+  $string .= $q->{attack};
+  $string .= $q->{isolateCol};
+  $string .= $q->{unknownColType};
+  $string .= $q->{isolateType};
+  $string .= $q->{unknownCol};
 
+  return md4_base64($string);
+}
 
 1;
