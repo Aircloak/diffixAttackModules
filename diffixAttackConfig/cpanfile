@@ -1,8 +1,0 @@
-requires 'Math::Random';
-requires 'Scalar::Util::Numeric';
-requires 'JSON';
-requires 'Test::JSON';
-requires 'DBD::Pg';
-requires 'File::Slurp';
-requires 'DateTime';
-requires 'Date::Parse';
