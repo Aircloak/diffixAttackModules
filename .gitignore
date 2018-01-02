@@ -37,8 +37,13 @@ inc/
 */ignore.txt
 */*.swp
 config/runPsql
-diffixAttackConfig/genConfig.pm
+*/*.png
 diffixAttackConfig/dbConfig-mpi.pm
 diffixAttackConfig/dbConfig-local.pm
 diffixAttackConfig/dbConfig.pm
 diffixAttackUtilities/tr.txt
+diffixAttackUtilities/gnuplot.pm
+diffixAttackUtilities/gnuplotTest.pl
+diffixAttackUtilities/ignoreCmd.txt
+diffixAttackUtilities/ignoreData.txt
+

@@ -15,10 +15,12 @@ our @EXPORT_OK = qw(
                     queryDatabaseAirQ
                     getColumnsFromAir
                     getQueryResult
+                    pollForQuery
                    );
 use JSON;
 use File::Slurp;
 use Test::JSON;
+use Data::Dumper;
 use Time::HiRes qw(usleep gettimeofday tv_interval);
 use IO::Async::Timer::Periodic;
 use IO::Async::Loop;
@@ -129,7 +131,7 @@ my($run) = @_;
 }
 
 sub getSyncAirQuery {
-my($db_name, $sql) = @_;
+my($db_name, $sql, $p) = @_;
   my $url = getAirUrl();
   $sql = fixSqlForWindows($sql);
   my $postCmd = getPostCmd();
@@ -151,6 +153,7 @@ my($db_name, $sql) = @_;
     #sleep 5;
   }
   my $ref = decode_json $jsonStr;
+  if ($p) { print "Received from Air:\n"; print Dumper $ref; }
 
   if ($ref->{success} == 1) {
     return $ref->{query_id};
@@ -196,7 +199,7 @@ sub queryDatabaseAirReal {
 my($run, $block) = @_;
   my $p = $run->{print};
   my $startTV = [ gettimeofday ];
-  my $qid = getSyncAirQuery($run->{db}, $run->{sql});
+  my $qid = getSyncAirQuery($run->{db}, $run->{sql}, $run->{print});
   die "queryDatabaseAir: no Query ID returned" if (!defined $qid);
   my $airRes = ();
   if ($block) {

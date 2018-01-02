@@ -12,7 +12,9 @@ our @EXPORT_OK = qw(
 use lib '../';
 use Data::Dumper;
 use Math::Random qw(random_uniform_integer);
-use diffixAttackConfig::dbConfig qw(getDbList getSyncAirQuery pollForQuery getRowsAsArray);
+use diffixAttackConfig::processAnswers qw(getRowsAsArray);
+use diffixAttackConfig::connectAir qw(getSyncAirQuery pollForQuery);
+use diffixAttackConfig::genConfig qw(getDbList);
 
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 0;
