@@ -165,11 +165,14 @@ my($db_name, $sql, $p) = @_;
 
 sub pollForQuery {
 my($qid, $p) = @_;
-  for (1..5000) {
+  foreach my $try (1..5000) {
     my $airRes = getQueryResult($qid);
     if ($airRes->{query}->{query_state} ne "completed") {
       if ($p) { print "query state = $airRes->{query}->{query_state}\n"; }
       my $sleepTime = 500000;
+      if ($try <= 2) {
+        $sleepTime = 50000;
+      }
       if ($p) { print "sleep $sleepTime us\n"; }
       usleep $sleepTime;
     }

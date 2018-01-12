@@ -67,4 +67,26 @@ my($db, $tab) = @_;
   return $columns[$index];
 }
 
+# --------- The following for creating and changing tables ----------
+
+my $tabConfig = [
+  {
+    tabName => "testtable",
+    colNames => [
+       "uid",
+       "txt1", "txt2", "txt3", "txt4", "txt5",
+       "int1", "int2", "int3", "int4", "int5",
+       "real1", "real2", "real3", "real4", "real5",
+       "date1", "date2", "date3", "date4", "date5"
+     ],
+    colTypes => [
+       "int",
+       "text", "text", "text", "text", "text",
+       "integer", "integer", "integer", "integer", "integer",
+       "real", "real", "real", "real", "real",
+       "timestamp", "timestamp", "timestamp", "timestamp", "timestamp"
+     ],
+  },
+];
+
 1;
