@@ -79,14 +79,17 @@ my($score) = @_;
 }
 
 sub printScore {
-my($fh, $tag, $s) = @_;
-  my $statProb = Math::Round::round($s->{statProb} * 100);
-  print $fh "$tag:	right $s->{right}, wrong $s->{wrong} of $s->{known} cells, stat prob $statProb\n";
-  my $alpha = sprintf "%.3f", $s->{alpha};
-  if ($s->{alpha} < 0.001) {
-    $alpha = sprintf "%.2e", $s->{alpha};
-  }
-  print $fh "			conf $s->{conf}, alpha $alpha, kappa $s->{kappa}\n";
+my($fh, $s) = @_;
+  my $gapStr = sprintf "%2d", $s->{gap};
+
+  my $sbPr = sprintf "%.2f", $s->{statProb};
+  my $rows = sprintf "%4d", $s->{rows};
+  my $alpha = sprintf "%.6f", $s->{alpha};
+  my $ci = $s->{kappa};
+  if ($ci < 0) {$ci = -1};
+  my $ciPr = sprintf "%3d", $ci;
+  my $conf = sprintf "%3d", $s->{conf};
+  print $fh "C $conf K $alpha Ci $ciPr gap $gapStr sCat $s->{statCat} rows $rows rCat $s->{rowCat} right $s->{right} wrong $s->{wrong} cells $s->{known} stat $sbPr\n";
 }
 
 1;
