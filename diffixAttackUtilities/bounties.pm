@@ -90,7 +90,9 @@ my($fh, $s) = @_;
   if ($ci < 0) {$ci = -1};
   my $ciPr = sprintf "%3d", $ci;
   my $conf = sprintf "%3d", $s->{conf};
-  print $fh "C $conf K $alpha Ci $ciPr gap $gapStr sCat $s->{statCat} rows $rows rCat $s->{rowCat} right $s->{right} wrong $s->{wrong} cells $s->{known} stat $sbPr tag $s->{tag}\n";
+  my $sCat = sprintf "%3d", $s->{statCat};
+  my $rCat = sprintf "%4d", $s->{rowCat};
+  print $fh "C $conf K $alpha Ci $ciPr gap $gapStr sCat $sCat rCat $rCat avRows $rows right $s->{right} wrong $s->{wrong} cells $s->{known} stat $sbPr tag $s->{tag}\n";
 }
 
 1;
